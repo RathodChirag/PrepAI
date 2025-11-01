@@ -20,7 +20,7 @@ interface SavedMessage{
     content: string;
 }
 
-const Agent = ({ userName, userId, type,questions }: AgentProps) => {
+const Agent = ({ userName, userId, type,questions,interviewId }: AgentProps) => {
     const router = useRouter();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
@@ -59,8 +59,31 @@ const Agent = ({ userName, userId, type,questions }: AgentProps) => {
         }
     }, []);
 
+    const handleGenerateFeedback = async (messages: SavedMessage) => {
+        console.log('generate feedback here');
+
+        const { success, id } = {
+            success: true,
+            id:'feedback-id'
+        }
+
+        if (success && id) {
+            router.push(`/${interviewId}/feedback`)
+        } else {
+            console.log("Error saving feedback");
+            router.push('/')
+        }
+        
+    }
+
     useEffect(() => {
-        if (callStatus === CallStatus.FINISHED) router.push('/');
+        if (callStatus === CallStatus.FINISHED) {
+            if (type === 'generate') {
+                router.push('/')
+            } else {
+                handleGenerateFeedback(messages);
+            }
+        }
     }, [callStatus, router]);
 
     const handleCall = async () => {
@@ -68,9 +91,6 @@ const Agent = ({ userName, userId, type,questions }: AgentProps) => {
     
         if (type === "generate") {
           await vapi.start(
-            undefined,
-            undefined,
-            undefined,
             process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!,
             {
               variableValues: {
@@ -103,9 +123,6 @@ const Agent = ({ userName, userId, type,questions }: AgentProps) => {
 
     const latestMessage = messages.length > 0 ? messages[messages.length - 1].content : undefined;
 
-    console.log(messages);
-
-    console.log("latestMessage", latestMessage);
     const isCallInactiveOrFinished = callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED;
     
     return (
