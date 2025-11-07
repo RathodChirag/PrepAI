@@ -10,12 +10,11 @@ import { getInterviewByUserId, getLatestInterviews } from '@/lib/actions/general
 const Page = async () => {
   const user = await getCurrentUser();
   const [userInterviews, latestInterviews] = await Promise.all([
-    await getInterviewByUserId(user?.id!),
-    await getLatestInterviews({ userId: user?.id! })
-    
+    user?.id ? await getInterviewByUserId(user.id) : null,
+    user?.id ? await getLatestInterviews({ userId: user.id }) : null
   ])
-  const existingInterviews = userInterviews?.length! > 0;
-  const upcomnigInterviews = latestInterviews?.length! > 0;
+  const existingInterviews = (userInterviews?.length ?? 0) > 0;
+  const upcomnigInterviews = (latestInterviews?.length ?? 0) > 0;
   return (
     <>
       <section className='card-cta'>

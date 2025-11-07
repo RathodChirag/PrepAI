@@ -6,6 +6,8 @@ import { feedbackSchema } from "@/constants";
 import { google } from "@ai-sdk/google";
 
 export async function getInterviewByUserId(userId: string): Promise<Interview[] | null> {
+    if (!userId) return null;
+    
     const interviews = await adminDB.collection('interviews').where('userId', "==", userId).orderBy('createdAt', 'desc').get();
 
     return interviews.docs.map((doc) => ({
@@ -16,6 +18,8 @@ export async function getInterviewByUserId(userId: string): Promise<Interview[] 
 
 export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
     const { userId, limit = 20 } = params;
+    if (!userId) return null;
+    
     const interviews = await adminDB
     .collection('interviews')
         .orderBy('createdAt', 'desc')
