@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import DisplayTechIcons from './DisplayTechIcons';
 import { getFeedbackByInterviewId } from '@/lib/actions/general.action';
+import { getCurrentUser } from '@/lib/actions/auth.action';
 
 const interviewCard = async ({ id, userId, role, type, techstack, createdAt }: InterviewCardProps) => {
-    const feedback = userId && id ? await getFeedbackByInterviewId({interviewId:id, userId}) : null;
+    const user = await getCurrentUser();
+    const feedback = userId && id && user?.id ? await getFeedbackByInterviewId({interviewId:id, userId:user.id}) : null;
     const normalizedType = /mix/gi.test(type) ? 'Mixed' : type;
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY');
   return (
